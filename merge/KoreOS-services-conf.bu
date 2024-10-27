@@ -1,0 +1,13 @@
+variant: fcos
+version: 1.5.0
+
+systemd:
+  units:
+    - name: containerd.service
+      mask: true
+    - name: docker.service
+      mask: true
+    - name: docker.socket
+      mask: true
+    - name: iscsid.service
+      enabled: true

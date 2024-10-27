@@ -1,0 +1,40 @@
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: ClusterConfiguration
+kubernetesVersion: $KOREOS_KUBERNETES_VERSION
+clusterName: $KOREOS_CLUSTER_NAME
+controlPlaneEndpoint: $KOREOS_CONTROL_PLANE_ENDPOINT
+certificatesDir: /etc/kubernetes/pki
+imageRepository: registry.k8s.io
+apiServer:
+  timeoutForControlPlane: 4m0s
+controllerManager:
+  extraArgs:
+    flex-volume-plugin-dir: /var/lib/kubelet/volumeplugins
+dns: {}
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+networking:
+  dnsDomain: $KOREOS_DNS_DOMAIN
+  serviceSubnet: $KOREOS_SERVICE_SUBNET_CIDR
+  podSubnet: $KOREOS_POD_SUBNET_CIDR
+scheduler: {}
+---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: InitConfiguration
+nodeRegistration:
+  criSocket: unix:///run/crio/crio.sock
+  ignorePreflightErrors:
+    - KubeletVersion
+    - FileExisting-conntrack
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+failSwapOn: false
+featureGates:
+  NodeSwap: true
+memorySwap:
+  swapBehavior: LimitedSwap
+volumePluginDir: /var/lib/kubelet/volumeplugins
+containerRuntimeEndpoint: unix:///run/crio/crio.sock
+cgroupDriver: systemd

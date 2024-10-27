@@ -1,0 +1,26 @@
+variant: fcos
+version: 1.5.0
+
+systemd:
+  units:
+    - name: crio-installer.service
+      enabled: true
+      dropins:
+        - name: env.conf
+          contents_local: KoreOS/environment.conf
+      contents: |
+        [Unit]
+        Description=Install crio
+        Before=kubelet.service
+        After=network-online.target
+
+        [Service]
+        TimeoutSec=300
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStartPre=/usr/bin/bash -c 'curl -vL https://storage.googleapis.com/cri-o/artifacts/cri-o.amd64.${KOREOS_CRIO_VERSION}.tar.gz | tar -xz --directory /opt'
+        ExecStart=/usr/bin/bash -c 'cd /opt/cri-o && ./install'
+        ExecStart=/usr/bin/systemctl enable --now crio.service
+
+        [Install]
+        WantedBy=multi-user.target

@@ -1,0 +1,34 @@
+variant: fcos
+version: 1.5.0
+
+storage:
+  files:
+    - path: /usr/local/bin/kubeadm
+      mode: 0751
+      overwrite: true
+      contents:
+        source: https://dl.k8s.io/release/v1.31.2/bin/linux/amd64/kubeadm
+
+    - path: /usr/local/bin/kubectl
+      mode: 0751
+      overwrite: true
+      contents:
+        source: https://dl.k8s.io/release/v1.31.2/bin/linux/amd64/kubectl
+
+    - path: /opt/koreos/templates/join.config.template.yaml
+      mode: 0644
+      overwrite: true
+      contents:
+        local: KoreOS/join.config.template.yaml
+
+    - path: /etc/profile.d/kubeCLI_completions.sh
+      contents: 
+        inline: | 
+          source <(kubectl completion bash)
+          source <(kubeadm completion bash)
+
+  directories:
+    - path: /opt/cni/bin
+    - path: /etc/cni/net.d
+    - path: /var/lib/kubelet/volumeplugins
+    - path: /var/lib/kubernetes/manifests

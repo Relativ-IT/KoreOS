@@ -1,0 +1,34 @@
+variant: fcos
+version: 1.5.0
+
+systemd:
+  units:
+    - name: koreos-installer.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Install KoreOS
+        RequiresMountsFor=/etc/kubernetes
+        After=network-online.target crio-installer.service crio.service koreos-template.service
+        Wants=crio.service koreos-template.service
+
+        [Service]
+        TimeoutSec=300
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStartPre=/usr/local/bin/kubeadm config images pull --config /opt/koreos/kubeadm.config.yaml
+        ExecStart=/usr/local/bin/kubeadm init --v=5 --config /opt/koreos/kubeadm.config.yaml
+        ExecStartPost=/usr/bin/install -D -o root -g root /etc/kubernetes/super-admin.conf /root/.kube/config
+        ExecStartPost=/usr/bin/install -d -o core -g core /home/core/.kube
+        ExecStartPost=/usr/bin/install -o core -g core /etc/kubernetes/admin.conf /home/core/.kube/config
+        ExecStartPost=/usr/local/bin/kubectl --kubeconfig /root/.kube/config cluster-info
+        ExecStartPost=/usr/local/bin/kubectl wait --kubeconfig /root/.kube/config nodes --all --for condition=Ready
+        ExecStartPost=/usr/local/bin/kubectl wait --kubeconfig /root/.kube/config --all-namespaces deployments --all --for condition=Available --timeout=60s
+        ExecStartPost=/usr/local/bin/kubectl wait --kubeconfig /root/.kube/config --all-namespaces pods --all --for condition=Ready
+        ExecStartPost=/usr/local/bin/kubectl create --kubeconfig /root/.kube/config -f /opt/koreos/tigera-operator.yaml
+        ExecStartPost=/usr/local/bin/kubectl wait --kubeconfig /root/.kube/config --namespace tigera-operator deployments --all --for condition=Available --timeout=60s
+        ExecStartPost=/usr/local/bin/kubectl create --kubeconfig /root/.kube/config -f /opt/koreos/calico.config.yaml
+
+        [Install]
+        WantedBy=multi-user.target
+        

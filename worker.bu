@@ -1,0 +1,35 @@
+variant: fcos
+version: 1.5.0
+
+ignition:
+  security:
+    tls:
+      certificate_authorities:
+        - source: http://YourHttpServerName:port/ign/YourCertificate.crt
+          verification:
+            hash: sha256-c7d64fe8c6b78b643d20f38b9944d5f860908a2bf0c30683faff840ad34299e3
+
+  config:
+    merge:
+      - source: https://YourHttpServerName:port/ign/KoreOS-ssh-key.ign
+      - source: https://YourHttpServerName:port/ign/KoreOS-cri-o.ign
+      - source: https://YourHttpServerName:port/ign/KoreOS-etc-mount.ign
+      - source: https://YourHttpServerName:port/ign/KoreOS-services-conf.ign
+      - source: https://YourHttpServerName:port/ign/KoreOS-kubelet-worker.ign
+      - source: https://YourHttpServerName:port/ign/KoreOS-dependencies-worker.ign
+      - source: https://YourHttpServerName:port/ign/KoreOS-template-worker.ign
+
+storage:
+  filesystems:
+    - path: /var
+      device: /dev/sda
+      format: xfs
+      label: Var
+      wipe_filesystem: true
+      with_mount_unit: true
+
+  files:
+    - path: /etc/hostname
+      mode: 0644
+      contents:
+        inline: NodeName

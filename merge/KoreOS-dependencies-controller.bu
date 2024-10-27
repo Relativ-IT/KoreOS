@@ -1,0 +1,64 @@
+variant: fcos
+version: 1.5.0
+
+storage:
+  files:
+    - path: /opt/koreos/tigera-operator.yaml
+      mode: 0751
+      overwrite: true
+      contents:
+        source: https://raw.githubusercontent.com/projectcalico/calico/v3.28.2/manifests/tigera-operator.yaml
+  
+    - path: /usr/local/bin/calicoctl
+      mode: 0751
+      overwrite: true
+      contents:
+        source: https://github.com/projectcalico/calico/releases/download/v3.28.2/calicoctl-linux-amd64
+
+    - path: /usr/local/bin/kubeadm
+      mode: 0751
+      overwrite: true
+      contents:
+        source: https://dl.k8s.io/release/v1.31.2/bin/linux/amd64/kubeadm
+
+    - path: /usr/local/bin/kubectl
+      mode: 0751
+      overwrite: true
+      contents:
+        source: https://dl.k8s.io/release/v1.31.2/bin/linux/amd64/kubectl
+
+    - path: /var/lib/calico/nodename
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: $HOSTNAME
+
+    - path: /var/lib/calico/mtu
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: "1450"
+
+    - path: /opt/koreos/templates/calico.config.template.yaml
+      mode: 0644
+      overwrite: true
+      contents:
+        local: KoreOS/calico.config.template.yaml
+  
+    - path: /opt/koreos/templates/kubeadm.config.template.yaml
+      mode: 0644
+      overwrite: true
+      contents:
+        local: KoreOS/kubeadm.config.template.yaml
+
+    - path: /etc/profile.d/kubeCLI_completions.sh
+      contents: 
+        inline: | 
+          source <(kubectl completion bash)
+          source <(kubeadm completion bash)
+
+  directories:
+    - path: /opt/cni/bin
+    - path: /etc/cni/net.d
+    - path: /var/lib/kubelet/volumeplugins
+    - path: /var/lib/kubernetes/manifests

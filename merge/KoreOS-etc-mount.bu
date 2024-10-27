@@ -1,0 +1,18 @@
+variant: fcos
+version: 1.5.0
+
+systemd:
+  units:
+    - name: etc-kubernetes.mount
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Bind mount for etc/kubernetes
+
+        [Mount]
+        What=/var/lib/kubernetes
+        Where=/etc/kubernetes
+        Options=bind
+
+        [Install]
+        WantedBy=multi-user.target

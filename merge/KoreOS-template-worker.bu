@@ -1,0 +1,20 @@
+variant: fcos
+version: 1.5.0
+
+systemd:
+  units:
+    - name: koreos-template.service
+      enabled: true
+      dropins:
+        - name: env.conf
+          contents_local: KoreOS/environment.conf
+      contents: |
+        [Unit]
+        Description=Update KoreOS configs
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/usr/bin/bash -c 'envsubst < /opt/koreos/templates/join.config.template.yaml > /opt/koreos/join.config.yaml'
+        [Install]
+        WantedBy=multi-user.target

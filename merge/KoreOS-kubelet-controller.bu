@@ -1,0 +1,55 @@
+variant: fcos
+version: 1.5.0
+
+systemd:
+  units:
+    - name: kubelet.service
+      enabled: true
+      dropins:
+        - name: env.conf
+          contents_local: KoreOS/environment.conf
+      contents: |
+        [Unit]
+        Description=Kubelet (System Container)
+        Wants=network-online.target rpc-statd.service
+        Requires=network-online.target crio.service
+        After=crio.service crio-installer.service
+        RequiresMountsFor=/etc/kubernetes
+
+        [Service]
+        ExecStartPre=/usr/bin/podman pull quay.io/poseidon/kubelet:${KOREOS_KUBERNETES_VERSION}
+        ExecStart=/usr/bin/podman run \
+          --name %N \
+          --log-driver journald \
+          --privileged \
+          --pid host \
+          --network host \
+          --name %N \
+          --replace \
+          --rm \
+          --volume /etc/cni/net.d:/etc/cni/net.d:ro,z \
+          --volume /etc/kubernetes:/etc/kubernetes:ro,z \
+          --volume /usr/lib/os-release:/etc/os-release:ro \
+          --volume /etc/machine-id:/etc/machine-id:ro \
+          --volume /lib/modules:/lib/modules:ro \
+          --volume /run:/run \
+          --volume /sys/fs/cgroup:/sys/fs/cgroup \
+          --volume /etc/selinux:/etc/selinux \
+          --volume /sys/fs/selinux:/sys/fs/selinux \
+          --volume /var/lib/calico:/var/lib/calico:ro \
+          --volume /var/lib/kubelet:/var/lib/kubelet:rshared,z \
+          --volume /var/log:/var/log \
+          --volume /var/run/lock:/var/run/lock:z \
+          --volume /opt/cni/bin:/opt/cni/bin:z \
+          --volume /var/lib/containers/storage/overlay:/var/lib/containers/storage/overlay:ro \
+          quay.io/poseidon/kubelet:${KOREOS_KUBERNETES_VERSION} \
+          --config=/var/lib/kubelet/config.yaml \
+          --kubeconfig=/etc/kubernetes/kubelet.conf
+        ExecStop=-/usr/bin/podman stop kubelet
+        Delegate=yes
+        Restart=always
+        RestartSec=10
+        
+        [Install]
+        WantedBy=multi-user.target
+  

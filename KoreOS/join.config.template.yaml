@@ -1,0 +1,18 @@
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: JoinConfiguration
+caCertPath: /etc/kubernetes/pki/ca.crt
+discovery:
+  bootstrapToken:
+    apiServerEndpoint: $KOREOS_CONTROL_PLANE_ENDPOINT
+    token: <you will have to update this file manualy>
+    caCertHashes:
+      - <you will have to update this file manualy>
+  timeout: 5m0s
+nodeRegistration:
+  criSocket: unix:///run/crio/crio.sock
+  imagePullPolicy: IfNotPresent
+  name: $KOREOS_HOSTNAME
+  taints: null
+  ignorePreflightErrors:
+    - KubeletVersion
+    - FileExisting-conntrack
