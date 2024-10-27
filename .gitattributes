@@ -1,0 +1,2 @@
+*.bu linguist-language=YAML
+*.bu linguist-detectable=true

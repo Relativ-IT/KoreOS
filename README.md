@@ -55,7 +55,7 @@ You will have to duplicate worker.bu for each worker node
 
 A small script that will convert `*.bu` files in `*.ign` files and if you want can publish them via ssh on your web server.
 
-## The right way ...
+## The right way
 
 You should start your cluster with the master/controller node and wait for `koreos-installer.service` (from KoreOS-installer.ign) to finish.
 Then you can check the logs with `journalctl -eu koreos-installer.service` and get the token like `kzh5ow.k7658m9zlmec5cni` and the caCertHashes: like `sha256:e46b74d087a9b14ebb03f7f65d75944a8dead52d0dddc654aa9878985ff9b0be`
